@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <script type="text/javascript" src="brython.js"></script>
+    <script type="text/javascript" src="brython_stdlib.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-extensions@6.2.7/dist/css/bulma-extensions.min.css">
+    </script>
+    <script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/bulma-extensions@6.2.7/dist/js/bulma-extensions.min.js"></script>
+</head>
+
+<body onload="brython(1)">
+    <section class="section">
+        <div class="container" id="AppsBody">
+            <div class="columns">
+                <div class="column">
+                    <div class="notification is-danger">
+                        <div class="columns is-vcentered is-centered">
+                            <div class="column is-4">
+                                <p> Enter Color (ex: 255,128,128 or #ab32ccdc) </p>
+                                <input class="input is-rounded is-large" type="text" placeholder="Input You Color"
+                                    id="ColorInput">
+                            </div>
+                            <div class="column is-2 has-text-centered">
+                                <p>Select Here?</p>
+                                <input type="color" value="#ff0000" id="ColorPicker"
+                                    style="height:2.5rem;width:7rem;border-radius: 4px;padding:0">
+                            </div>
+                            <div class="column is-2 has-text-centered">
+                                <p>Display as?</p>
+                                <div class="select">
+                                    <select id="DisplayType">
+                                        <option>RGB</option>
+                                        <option>HEX</option>
+                                        <option>Linear</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="column is-2 has-text-centered">
+                                <br>
+                                <button class="button is-primary is-inverted is-outlined" id='Add'>
+                                    AddColor
+                                </button>
+                            </div>
+                            <div class="column is-2 has-text-centered">
+                                <p>Edit Palette?</p>
+                                <input id="EditableSwitch" type="checkbox" class="switch is-medium"
+                                    style="height:2.5rem;width:7rem;">
+                                <label for="EditableSwitch"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="columns is-tablet">
+                <div class="column is-3">
+                    <div class="notification" style="height: 60vh;" id='Palette1'>
+                    </div>
+                </div>
+
+                <div class="column is-3">
+                    <div class="notification" style="height: 60vh;" id="Palette2">
+                    </div>
+                </div>
+                <div class="column is-3">
+                    <div class="notification" style="height: 60vh" id="Palette3">
+                    </div>
+                </div>
+                <div class="column is-3">
+                    <div class="notification" style="height: 60vh" id="Palette4">
+                    </div>
+                </div>
+            </div>
+        </div>        
+    </section>
+
+
+
+    <script type="text/python">
+import BPY_Hex
+</script>
+</body>
+
+</html>
