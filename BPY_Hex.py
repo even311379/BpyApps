@@ -39,7 +39,16 @@ def Drop(ev):
 def AddFromPicker(ev):
     global PANEL_ID
     global EXISTING_PANEL_IDS
-    document['Palette1'] <= SetupColorPanel(ev.target.value, PANEL_ID)
+    global CURRENT_COLOR_TYPE
+    CT = ev.target.value
+    if CURRENT_COLOR_TYPE == ColorType.RGB:
+        CT = f'{int(CT[1:3], 16)},{int(CT[3:5], 16)},{int(CT[5:7], 16)}'
+    elif CURRENT_COLOR_TYPE == ColorType.Linear:
+        c0 = round(int(CT[1:3], 16)/255, 3)
+        c1 = round(int(CT[3:5], 16)/255, 3)
+        c2 = round(int(CT[5:7], 16)/255, 3)
+        CT = f'{c0},{c1},{c2}'
+    document['Palette1'] <= SetupColorPanel(CT, ev.target.value, PANEL_ID)
     EXISTING_PANEL_IDS.append(PANEL_ID)
     PANEL_ID += 1
 
@@ -47,6 +56,7 @@ def AddFromPicker(ev):
 def AddFromInput(ev):
     global PANEL_ID
     global EXISTING_PANEL_IDS
+    global CURRENT_COLOR_TYPE
     C = ev.target.value
     # check C is hex:
     C_Is_Hex = False
@@ -58,22 +68,69 @@ def AddFromInput(ev):
         else:
             C_Is_Hex = True
     if C_Is_Hex:
-        document['Palette1'] <= SetupColorPanel(ev.target.value, PANEL_ID)
+        CT = ev.target.value
+        if CURRENT_COLOR_TYPE == ColorType.RGB:
+            CT = f'{int(CT[1:3], 16)},{int(CT[3:5], 16)},{int(CT[5:7], 16)}'
+        elif CURRENT_COLOR_TYPE == ColorType.Linear:
+            c0 = round(int(CT[1:3], 16)/255, 3)
+            c1 = round(int(CT[3:5], 16)/255, 3)
+            c2 = round(int(CT[5:7], 16)/255, 3)
+            CT = f'{c0},{c1},{c2}'
+        document['Palette1'] <= SetupColorPanel(CT, ev.target.value, PANEL_ID)
         EXISTING_PANEL_IDS.append(PANEL_ID)
         PANEL_ID += 1
         return
+
+    # check is RGB
+
+    
+    # check is linear
+
     print('input color is not hex')
     print(ev.target.value)
 
 
-def ChangeColorType(ev):
+def convert_colortext(CT, ColorText):
     global CURRENT_COLOR_TYPE
+    if CT == CURRENT_COLOR_TYPE:
+        return ColorText
+    cs = ColorText.split(',')
+    if CT == ColorType.RGB:
+        if CURRENT_COLOR_TYPE == ColorType.Hex:
+            return f'{int(ColorText[1:3], 16)},{int(ColorText[3:5], 16)},{int(ColorText[5:7], 16)}'
+        if CURRENT_COLOR_TYPE == ColorType.Linear:
+            return f'{int(float(cs[0])*255)},{int(float(cs[1])*255)},{int(float(cs[2])*255)}'
+    if CT == ColorType.Hex:
+        if CURRENT_COLOR_TYPE == ColorType.RGB:
+            return f'#{hex(int(cs[0]))[2:4]}{hex(int(cs[1]))[2:4]}{hex(int(cs[2]))[2:4]}'
+        if CURRENT_COLOR_TYPE == ColorType.Linear:
+            return f'#{hex(int(float(cs[0])*255))[2:4]}{hex(int(float(cs[1])*255))[2:4]}{hex(int(float(cs[2])*255))[2:4]}'
+    if CT == ColorType.Linear:
+        if CURRENT_COLOR_TYPE == ColorType.RGB:
+            return f'{round(int(cs[0])/255, 3)},{round(int(cs[1])/255, 3)},{round(int(cs[2])/255, 3)}'
+        if CURRENT_COLOR_TYPE == ColorType.Hex:
+            c0 = round(int(ColorText[1:3], 16)/255, 3)
+            c1 = round(int(ColorText[3:5], 16)/255, 3)
+            c2 = round(int(ColorText[5:7], 16)/255, 3)
+            return f'{c0},{c1},{c2}'
+
+
+def SetupColorText(CT):
+    global EXISTING_PANEL_IDS
+    global CURRENT_COLOR_TYPE
+    for PID in EXISTING_PANEL_IDS:
+        ele = document[f'Panel_{PID}'].children[1]
+        ele.value = convert_colortext(CT, ele.value)
+    CURRENT_COLOR_TYPE = CT
+
+
+def ChangeColorType(ev):
     if ev.target.value == 'HEX':
-        CURRENT_COLOR_TYPE = ColorType.Hex
+        SetupColorText(ColorType.Hex)
     elif ev.target.value == 'RGB':
-        CURRENT_COLOR_TYPE = ColorType.RGB
+        SetupColorText(ColorType.RGB)
     else:
-        CURRENT_COLOR_TYPE = ColorType.Linear
+        SetupColorText(ColorType.Linear)
 
 
 def DeletePanel(ev):
@@ -99,7 +156,7 @@ def CopyColor(ev):
     print('Copied!?')
 
 
-def SetupColorPanel(ColorText, Nid):
+def SetupColorPanel(ColorText, HexColor, Nid):
     BTN = html.BUTTON(Class="delete is-small", style={'display': 'none'})
     BTN.bind('click', DeletePanel)
     ColorDiv = html.INPUT(
@@ -116,7 +173,7 @@ def SetupColorPanel(ColorText, Nid):
         id=f'Panel_{Nid}',
         style={
             'margin-bottom': '0.5rem',
-            'background-color': ColorText
+            'background-color': HexColor
         }
     )
     # O.draggable = True
@@ -165,3 +222,11 @@ def InitPage(ev):
 document <= html.DIV(id='HiddenTrigger', style=dict(display='none'))
 document['HiddenTrigger'].bind('click', InitPage)
 document['HiddenTrigger'].click()
+
+ele = document['DisplayType']
+if ele.value == 'RGB':
+    CURRENT_COLOR_TYPE = ColorType.RGB
+elif ele.value == 'HEX':
+    CURRENT_COLOR_TYPE = ColorType.Hex
+else:
+    CURRENT_COLOR_TYPE = ColorType.Linear
